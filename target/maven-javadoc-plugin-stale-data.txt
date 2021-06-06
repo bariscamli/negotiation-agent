@@ -1,0 +1,19 @@
+cmd.exe
+/X
+/C
+""C:\Program Files\Java\jdk1.8.0_181\bin\javadoc.exe" @options @argfile"
+D:\GeniusWeb\KayseriliAgent\target\apidocs\allclasses-frame.html = 1622999755257
+D:\GeniusWeb\KayseriliAgent\target\apidocs\allclasses-noframe.html = 1622999755258
+D:\GeniusWeb\KayseriliAgent\target\apidocs\argfile = 1622999753912
+D:\GeniusWeb\KayseriliAgent\target\apidocs\constant-values.html = 1622999755091
+D:\GeniusWeb\KayseriliAgent\target\apidocs\deprecated-list.html = 1622999755254
+D:\GeniusWeb\KayseriliAgent\target\apidocs\help-doc.html = 1622999755266
+D:\GeniusWeb\KayseriliAgent\target\apidocs\index-all.html = 1622999755250
+D:\GeniusWeb\KayseriliAgent\target\apidocs\index.html = 1622999755261
+D:\GeniusWeb\KayseriliAgent\target\apidocs\options = 1622999753910
+D:\GeniusWeb\KayseriliAgent\target\apidocs\overview-frame.html = 1622999754995
+D:\GeniusWeb\KayseriliAgent\target\apidocs\overview-summary.html = 1622999755263
+D:\GeniusWeb\KayseriliAgent\target\apidocs\overview-tree.html = 1622999755224
+D:\GeniusWeb\KayseriliAgent\target\apidocs\package-list = 1622999754983
+D:\GeniusWeb\KayseriliAgent\target\apidocs\script.js = 1622999755270
+D:\GeniusWeb\KayseriliAgent\target\apidocs\stylesheet.css = 1622989758060

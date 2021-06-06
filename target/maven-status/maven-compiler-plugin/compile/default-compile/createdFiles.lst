@@ -1,0 +1,15 @@
+geniusweb\exampleparties\kayseriliagent\opponent\FrequencyTable.class
+geniusweb\exampleparties\kayseriliagent\strategies\AdaptiveBoulwareStrategy.class
+geniusweb\exampleparties\kayseriliagent\NegotiationData.class
+geniusweb\exampleparties\kayseriliagent\strategies\TimeConcessionStrategies.class
+geniusweb\exampleparties\kayseriliagent\KayseriliAgent.class
+geniusweb\exampleparties\kayseriliagent\strategies\IStrategies.class
+geniusweb\exampleparties\kayseriliagent\IncomingBids.class
+geniusweb\exampleparties\kayseriliagent\bidding\RandomOfferingBiddingStrategy.class
+geniusweb\exampleparties\kayseriliagent\constants\ConcessionRate.class
+geniusweb\exampleparties\kayseriliagent\strategies\BaseTimeConcessionStrategy.class
+geniusweb\exampleparties\kayseriliagent\opponent\OpponentModel.class
+geniusweb\exampleparties\kayseriliagent\opponent\OpponentStrategies.class
+geniusweb\exampleparties\kayseriliagent\PersistentState.class
+geniusweb\exampleparties\kayseriliagent\bidding\HybridOfferingBiddingStrategy.class
+geniusweb\exampleparties\kayseriliagent\bidding\BaseOfferingStrategy.class
