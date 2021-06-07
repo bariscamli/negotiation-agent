@@ -21,7 +21,6 @@ import geniusweb.inform.Inform;
 import geniusweb.inform.Settings;
 import geniusweb.inform.YourTurn;
 import geniusweb.issuevalue.Bid;
-import geniusweb.issuevalue.Domain;
 import geniusweb.party.Capabilities;
 import geniusweb.party.DefaultParty;
 import geniusweb.profile.Profile;
@@ -301,8 +300,8 @@ public class KayseriliAgent extends DefaultParty {
 
 
             if (lastReceivedBid != null) {
-                IncomingBids tmp = new IncomingBids(lastReceivedBid.getIssueValues().values(), turnCount, bidsHistory);
-                tmp.printBids();
+                OpponentModelling tmp = new OpponentModelling(lastReceivedBid.getIssueValues().values(), turnCount, bidsHistory);
+               // tmp.printBids();
             }
             // Create offer action
             action = new Offer(me, bid);
@@ -319,6 +318,8 @@ public class KayseriliAgent extends DefaultParty {
      * @return true iff bid is good for us.
      */
     private boolean isGood(Bid bid) {
+        Double timeStep = progress.get(System.currentTimeMillis());
+        Double avgMaxUtility = this.persistentState.getAvgMaxUtility(this.opponentName);
         if (bid == null)
             return false;
 
@@ -326,12 +327,61 @@ public class KayseriliAgent extends DefaultParty {
         if (this.persistentState.knownOpponent(this.opponentName)) {
             // Obtain the average of the max utility that the opponent has offered us in
             // previous negotiations.
-            Double avgMaxUtility = this.persistentState.getAvgMaxUtility(this.opponentName);
+            System.out.println("We know the opponent!");
+            double threshold = 0.10;
+            if (this.persistentState.isCompetitive()){
+                if (timeStep <= 0.5){
+                    double value = 0.0;
+                    if (avgMaxUtility + threshold > 1.0){
+                        value = avgMaxUtility;
+                    } else {
+                        value = avgMaxUtility + threshold;
+                    }
+                    System.out.println("Our Acceptance Value: " + value);
+                    return this.utilitySpace.getUtility(bid).doubleValue() > value;
+                } else if(timeStep <= 0.7){
+                    double value = 0.0;
+                    if (avgMaxUtility + (threshold/3) > 1.0){
+                        value = avgMaxUtility;
+                    } else {
+                        value = avgMaxUtility + (threshold / 3);
+                    }
+                    System.out.println("Our Acceptance Value: " + value);
+                    return this.utilitySpace.getUtility(bid).doubleValue() > value;
+                } else if (timeStep <= 0.8){
+                    double value = 0.0;
+                    if (avgMaxUtility + (2 * threshold / 3) > 1.0){
+                        value = avgMaxUtility;
+                    } else {
+                        value = avgMaxUtility + (2 * threshold / 3);
+                    }
+                    System.out.println("Our Acceptance Value: " + value);
+                    return this.utilitySpace.getUtility(bid).doubleValue() > value;
+                } else {
+                    double value = 0.0;
+                    if (avgMaxUtility + ( threshold / 5) > 1.0){
+                        value = avgMaxUtility;
+                    } else {
+                        value = avgMaxUtility + (threshold / 5);
+                    }
+                    System.out.println("Our Acceptance Value: " + value);
+                    return this.utilitySpace.getUtility(bid).doubleValue() > value;
+                }
+            } else if(this.persistentState.isSocial()){
 
-            // Request 5% more than the average max utility offered by the opponent.
-            return this.utilitySpace.getUtility(bid).doubleValue() > (avgMaxUtility * 1.05);
+            } else {
+                // Request 5% more than the average max utility offered by the opponent.
+
+                return this.utilitySpace.getUtility(bid).doubleValue() > (avgMaxUtility * 1.05);
+            }
+
+
+
+
         }
-
+        else{
+            System.out.println("We don't know the opponent!");
+        }
         // Check a simple business rule
         Boolean nearDeadline = progress.get(System.currentTimeMillis()) > 0.95;
         Boolean acceptable = this.utilitySpace.getUtility(bid).doubleValue() > 0.7;

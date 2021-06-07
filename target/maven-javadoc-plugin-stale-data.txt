@@ -2,18 +2,18 @@ cmd.exe
 /X
 /C
 ""C:\Program Files\Java\jdk1.8.0_181\bin\javadoc.exe" @options @argfile"
-D:\GeniusWeb\KayseriliAgent\target\apidocs\allclasses-frame.html = 1622999755257
-D:\GeniusWeb\KayseriliAgent\target\apidocs\allclasses-noframe.html = 1622999755258
-D:\GeniusWeb\KayseriliAgent\target\apidocs\argfile = 1622999753912
-D:\GeniusWeb\KayseriliAgent\target\apidocs\constant-values.html = 1622999755091
-D:\GeniusWeb\KayseriliAgent\target\apidocs\deprecated-list.html = 1622999755254
-D:\GeniusWeb\KayseriliAgent\target\apidocs\help-doc.html = 1622999755266
-D:\GeniusWeb\KayseriliAgent\target\apidocs\index-all.html = 1622999755250
-D:\GeniusWeb\KayseriliAgent\target\apidocs\index.html = 1622999755261
-D:\GeniusWeb\KayseriliAgent\target\apidocs\options = 1622999753910
-D:\GeniusWeb\KayseriliAgent\target\apidocs\overview-frame.html = 1622999754995
-D:\GeniusWeb\KayseriliAgent\target\apidocs\overview-summary.html = 1622999755263
-D:\GeniusWeb\KayseriliAgent\target\apidocs\overview-tree.html = 1622999755224
-D:\GeniusWeb\KayseriliAgent\target\apidocs\package-list = 1622999754983
-D:\GeniusWeb\KayseriliAgent\target\apidocs\script.js = 1622999755270
-D:\GeniusWeb\KayseriliAgent\target\apidocs\stylesheet.css = 1622989758060
+D:\GeniusWeb\negotiation-agent\target\apidocs\allclasses-frame.html = 1623085492179
+D:\GeniusWeb\negotiation-agent\target\apidocs\allclasses-noframe.html = 1623085492182
+D:\GeniusWeb\negotiation-agent\target\apidocs\argfile = 1623085490839
+D:\GeniusWeb\negotiation-agent\target\apidocs\constant-values.html = 1623085492050
+D:\GeniusWeb\negotiation-agent\target\apidocs\deprecated-list.html = 1623085492176
+D:\GeniusWeb\negotiation-agent\target\apidocs\help-doc.html = 1623085492216
+D:\GeniusWeb\negotiation-agent\target\apidocs\index-all.html = 1623085492168
+D:\GeniusWeb\negotiation-agent\target\apidocs\index.html = 1623085492197
+D:\GeniusWeb\negotiation-agent\target\apidocs\options = 1623085490838
+D:\GeniusWeb\negotiation-agent\target\apidocs\overview-frame.html = 1623085491955
+D:\GeniusWeb\negotiation-agent\target\apidocs\overview-summary.html = 1623085492201
+D:\GeniusWeb\negotiation-agent\target\apidocs\overview-tree.html = 1623085492145
+D:\GeniusWeb\negotiation-agent\target\apidocs\package-list = 1623085491949
+D:\GeniusWeb\negotiation-agent\target\apidocs\script.js = 1623085492218
+D:\GeniusWeb\negotiation-agent\target\apidocs\stylesheet.css = 1623081707202

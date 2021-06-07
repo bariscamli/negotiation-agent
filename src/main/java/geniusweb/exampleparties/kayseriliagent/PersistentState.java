@@ -69,4 +69,11 @@ public class PersistentState {
     public Boolean knownOpponent(String opponent) {
         return opponentEncounters.containsKey(opponent);
     }
+
+    public boolean isCompetitive() {
+        return true;
+    }
+    public boolean isSocial(){
+        return false;
+    }
 }
