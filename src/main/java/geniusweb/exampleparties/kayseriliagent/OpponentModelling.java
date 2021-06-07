@@ -10,15 +10,18 @@ public class OpponentModelling {
     private Double totalOccurrence;
     private ArrayList<Collection<Value>> issuesList = new ArrayList<Collection<Value>>();
     private HashMap<String, HashMap<String, Double>> bidsHistory;
-    private HashMap<Collection<Value>, Double> opponentSpace;
+    // private Hashtable<Collection<Value>, Double> opponentSpace;
+    private ArrayList<Double> opponentSpaceList;
 
+    public OpponentModelling(){
+        opponentSpaceList = new ArrayList<>();
+    }
 
-    public OpponentModelling(Collection<Value> issueValueList, Double occurrence, HashMap<String, HashMap<String, Double>> bidsHistory) {
+    public void addOpponentModel(Collection<Value> issueValueList) {
         this.issueValueList = issueValueList;
-        this.totalOccurrence = occurrence;
         this.issuesList.add(issueValueList);
-        this.bidsHistory = bidsHistory;
-        opponentSpace = new HashMap<Collection<Value>,Double>();
+
+
     }
     public void printBids(){
         for (Collection<Value> issue : issuesList){
@@ -27,7 +30,7 @@ public class OpponentModelling {
         }
         calculateFrequency();
     }
-    public HashMap<Collection<Value>, Double> calculateFrequency(){
+    public ArrayList<Double> calculateFrequency(){
         HashMap<String,Double> values = new HashMap<>();
         ArrayList<HashMap<String,Double>> valuesList = new ArrayList<HashMap<String,Double>>();
         double sum = 0.0;
@@ -50,14 +53,20 @@ public class OpponentModelling {
                     }
                 }
                 double sumNum = sum / size / this.totalOccurrence;
-                opponentSpace.put(issue,sumNum);
+               // opponentSpace.put(issue,sumNum);
+                opponentSpaceList.add(sumNum);
+
             }
         }
-            System.out.println("Opponent Space: " + opponentSpace + "\n**********************");
-            System.out.println("Total Sum: " + sum / size / this.totalOccurrence+"\n-----------------");
+//            System.out.println("Opponent Space: " + opponentSpace + "\n**********************");
+//            System.out.println("Total Sum: " + sum / size / this.totalOccurrence+"\n-----------------");
 
-            return opponentSpace;
+            return opponentSpaceList;
     }
 
+    public void validateOthers(Double turnCount, HashMap<String, HashMap<String, Double>> bidsHistory) {
+        this.bidsHistory = bidsHistory;
+        this.totalOccurrence = turnCount;
+    }
 }
 

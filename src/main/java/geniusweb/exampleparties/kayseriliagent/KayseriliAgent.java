@@ -21,6 +21,7 @@ import geniusweb.inform.Inform;
 import geniusweb.inform.Settings;
 import geniusweb.inform.YourTurn;
 import geniusweb.issuevalue.Bid;
+import geniusweb.issuevalue.Value;
 import geniusweb.party.Capabilities;
 import geniusweb.party.DefaultParty;
 import geniusweb.profile.Profile;
@@ -38,7 +39,7 @@ public class KayseriliAgent extends DefaultParty {
 
     private Bid lastReceivedBid = null;
     private PartyId me;
-    private final Random random = new Random();
+    private  Random random = new Random();
     protected ProfileInterface profileint = null;
     private Progress progress;
     private String protocol;
@@ -52,6 +53,7 @@ public class KayseriliAgent extends DefaultParty {
     private String opponentName;
     private HashMap<String,HashMap<String,Double>> bidsHistory;
     private Double turnCount = 0.0;
+    private OpponentModelling opponentModelling;
 
     public KayseriliAgent() {
     }
@@ -86,7 +88,7 @@ public class KayseriliAgent extends DefaultParty {
                 //    bidsHistory[domains] = new ArrayList<>;
                 //}
 
-
+                this.opponentModelling = new OpponentModelling();
                 // ID of my agent
                 this.me = settings.getID();
 
@@ -266,22 +268,8 @@ public class KayseriliAgent extends DefaultParty {
         System.out.println("Time Step: " + progress.get(System.currentTimeMillis()));
         Action action;
         turnCount++;
-        if (isGood(lastReceivedBid)) {
-            // If the last received bid is good: create Accept action
-            action = new Accept(me, lastReceivedBid);
-
-        } else {
-            // Obtain ist of all bids
-            AllBidsList bidspace = new AllBidsList(this.utilitySpace.getDomain());
-            Bid bid = null;
-
-            // Iterate randomly through list of bids until we find a good bid
-            for (int attempt = 0; attempt < 500 && !isGood(bid); attempt++) {
-                long i = random.nextInt(bidspace.size().intValue());
-                bid = bidspace.get(BigInteger.valueOf(i));
-            }
+        if (lastReceivedBid != null) {
             // Store last Received Bids
-            if (lastReceivedBid != null) {
                 for (String domains : lastReceivedBid.getIssues()) {
                     if (bidsHistory.containsKey(domains)) {
                         break;
@@ -296,13 +284,27 @@ public class KayseriliAgent extends DefaultParty {
                     else
                         bidsHistory.get(keys).put(value, 1.0);
                 }
+                opponentModelling.validateOthers(turnCount,bidsHistory);
+                opponentModelling.addOpponentModel(lastReceivedBid.getIssueValues().values());
             }
 
 
-            if (lastReceivedBid != null) {
-                OpponentModelling tmp = new OpponentModelling(lastReceivedBid.getIssueValues().values(), turnCount, bidsHistory);
-               // tmp.printBids();
+        if (isGood(lastReceivedBid)) {
+            // If the last received bid is good: create Accept action
+            action = new Accept(me, lastReceivedBid);
+
+        } else {
+            // Obtain ist of all bids
+            AllBidsList bidspace = new AllBidsList(this.utilitySpace.getDomain());
+            Bid bid = null;
+
+            // Iterate randomly through list of bids until we find a good bid
+            for (int attempt = 0; attempt < 10 && !isGood(bid); attempt++) {
+                long i = random.nextInt(bidspace.size().intValue());
+                bid = bidspace.get(BigInteger.valueOf(i));
             }
+
+
             // Create offer action
             action = new Offer(me, bid);
         }
@@ -320,37 +322,44 @@ public class KayseriliAgent extends DefaultParty {
     private boolean isGood(Bid bid) {
         Double timeStep = progress.get(System.currentTimeMillis());
         Double avgMaxUtility = this.persistentState.getAvgMaxUtility(this.opponentName);
-        if (bid == null)
-            return false;
+        double rangeMin = 0.81;
+        double rangeMax = 0.99;
+        ArrayList<Double> opponentSpace = new ArrayList<>();
+        if (timeStep > 0.2)
+            opponentSpace = opponentModelling.calculateFrequency();
 
+        int index = opponentSpace.size() - 1;
+        if (bid == null) {
+            return false;
+        }
         // Check if we already know the opponent
         if (this.persistentState.knownOpponent(this.opponentName)) {
             // Obtain the average of the max utility that the opponent has offered us in
             // previous negotiations.
             System.out.println("We know the opponent!");
             double threshold = 0.10;
-            if (this.persistentState.isCompetitive()){
-                if (timeStep <= 0.5){
+            if (this.persistentState.isCompetitive()) {
+                if (timeStep <= 0.5) {
                     double value = 0.0;
-                    if (avgMaxUtility + threshold > 1.0){
+                    if (avgMaxUtility + threshold > 1.0) {
                         value = avgMaxUtility;
                     } else {
                         value = avgMaxUtility + threshold;
                     }
                     System.out.println("Our Acceptance Value: " + value);
                     return this.utilitySpace.getUtility(bid).doubleValue() > value;
-                } else if(timeStep <= 0.7){
+                } else if (timeStep <= 0.7) {
                     double value = 0.0;
-                    if (avgMaxUtility + (threshold/3) > 1.0){
+                    if (avgMaxUtility + (threshold / 3) > 1.0) {
                         value = avgMaxUtility;
                     } else {
                         value = avgMaxUtility + (threshold / 3);
                     }
                     System.out.println("Our Acceptance Value: " + value);
                     return this.utilitySpace.getUtility(bid).doubleValue() > value;
-                } else if (timeStep <= 0.8){
+                } else if (timeStep <= 0.8) {
                     double value = 0.0;
-                    if (avgMaxUtility + (2 * threshold / 3) > 1.0){
+                    if (avgMaxUtility + (2 * threshold / 3) > 1.0) {
                         value = avgMaxUtility;
                     } else {
                         value = avgMaxUtility + (2 * threshold / 3);
@@ -359,7 +368,7 @@ public class KayseriliAgent extends DefaultParty {
                     return this.utilitySpace.getUtility(bid).doubleValue() > value;
                 } else {
                     double value = 0.0;
-                    if (avgMaxUtility + ( threshold / 5) > 1.0){
+                    if (avgMaxUtility + (threshold / 5) > 1.0) {
                         value = avgMaxUtility;
                     } else {
                         value = avgMaxUtility + (threshold / 5);
@@ -367,27 +376,53 @@ public class KayseriliAgent extends DefaultParty {
                     System.out.println("Our Acceptance Value: " + value);
                     return this.utilitySpace.getUtility(bid).doubleValue() > value;
                 }
-            } else if(this.persistentState.isSocial()){
+            } else if (this.persistentState.isSocial()) {
 
             } else {
                 // Request 5% more than the average max utility offered by the opponent.
-
                 return this.utilitySpace.getUtility(bid).doubleValue() > (avgMaxUtility * 1.05);
             }
 
+        } else {
+            // System.out.println("We don't know the opponent!");
+            // Check a simple business rule
 
+            //System.out.println(opponentSpace);
 
+            if (timeStep < 0.5) {
+                Double randomStarter = rangeMin + (rangeMax - rangeMin) * random.nextDouble();
+                System.out.println("Offers Utility: " + this.utilitySpace.getUtility(bid).doubleValue());
+                System.out.println("Random Starter: " + randomStarter);
+                return this.utilitySpace.getUtility(bid).doubleValue() > randomStarter;
+            } else if (timeStep <= 0.7) {
+                //System.out.println("Opponents Bid: " + bid.getIssueValues().values());
+              /* System.out.println("Our OpponentSpace: " + opponentSpace);
+                for (Collection<Value> key: opponentSpace.keySet()) {
+                    if (key.toString().equals(bid.getIssueValues().values().toString())) {
+                        System.out.println("We are in!");
+                        double estimatedUtility = opponentSpace.get(bid.getIssueValues().values()).doubleValue();
+                        System.out.println("Estimated Utility: " + estimatedUtility);
+                    }*/
+                //index--;
+                System.out.println("Offers Utility: " + this.utilitySpace.getUtility(bid).doubleValue());
+                System.out.println("Utility Value: " + opponentSpace.get(index));
+                return this.utilitySpace.getUtility(bid).doubleValue() > opponentSpace.get(index);
 
+            } else if (timeStep <= 0.8) {
+                //index--;
+                System.out.println("Offers Utility: " + this.utilitySpace.getUtility(bid).doubleValue());
+                System.out.println("Utility Value: " + opponentSpace.get(index));
+                return this.utilitySpace.getUtility(bid).doubleValue() > (opponentSpace.get(index) * timeStep);
+            }
         }
-        else{
-            System.out.println("We don't know the opponent!");
-        }
-        // Check a simple business rule
         Boolean nearDeadline = progress.get(System.currentTimeMillis()) > 0.95;
         Boolean acceptable = this.utilitySpace.getUtility(bid).doubleValue() > 0.7;
         Boolean good = this.utilitySpace.getUtility(bid).doubleValue() > 0.9;
         return (nearDeadline && acceptable) || good;
     }
+
+
+
 
     /**
      * This method is invoked if the learning phase is started. There is now time to
@@ -419,5 +454,3 @@ public class KayseriliAgent extends DefaultParty {
     }
 
 }
-
-//{Drinks:[{COLA:2,FANTA:3}}

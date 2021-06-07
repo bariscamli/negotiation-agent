@@ -3,6 +3,7 @@ geniusweb\exampleparties\kayseriliagent\NegotiationData.class
 geniusweb\exampleparties\kayseriliagent\strategies\TimeConcessionStrategies.class
 geniusweb\exampleparties\kayseriliagent\KayseriliAgent.class
 geniusweb\exampleparties\kayseriliagent\strategies\IStrategies.class
+geniusweb\exampleparties\kayseriliagent\IncomingBids.class
 geniusweb\exampleparties\kayseriliagent\bidding\RandomOfferingBiddingStrategy.class
 geniusweb\exampleparties\kayseriliagent\constants\ConcessionRate.class
 geniusweb\exampleparties\kayseriliagent\strategies\BaseTimeConcessionStrategy.class

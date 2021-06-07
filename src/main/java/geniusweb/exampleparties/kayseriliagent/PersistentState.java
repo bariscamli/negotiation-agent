@@ -66,7 +66,7 @@ public class PersistentState {
         return null;
     }
 
-    public Boolean knownOpponent(String opponent) {
+    public boolean knownOpponent(String opponent) {
         return opponentEncounters.containsKey(opponent);
     }
 
