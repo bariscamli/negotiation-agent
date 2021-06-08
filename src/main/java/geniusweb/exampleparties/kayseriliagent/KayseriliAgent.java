@@ -118,7 +118,6 @@ public class KayseriliAgent extends DefaultParty {
                 // normally.
                 if (this.parameters.containsKey("negotiationdata")) {
                     List<String> dataPaths_raw = (List<String>) this.parameters.get("negotiationdata");
-                    System.out.println("Raw data path: " + dataPaths_raw);
                     this.dataPaths = new ArrayList<>();
                     for (String path : dataPaths_raw)
                         this.dataPaths.add(new FileLocation(UUID.fromString(path)).getFile());
@@ -280,11 +279,14 @@ public class KayseriliAgent extends DefaultParty {
                     }
                 }
                 for (String keys : lastReceivedBid.getIssueValues().keySet()) {
-                    String value = lastReceivedBid.getIssueValues().get(keys).toString(); // cola, fanta
-                    if (bidsHistory.get(keys).containsKey(value) && bidsHistory != null)
-                        bidsHistory.get(keys).put(value, bidsHistory.get(keys).get(value) + (1.0  - progress.get(System.currentTimeMillis())));
+                    String value = lastReceivedBid.getIssueValues().get(keys).toString();
+//                    System.out.println("Bids History: " + value);
+                    System.out.println("Bids Histroy: " + bidsHistory);
+                    if (bidsHistory.get(keys).containsKey(value))
+                        bidsHistory.get(keys).put(value, bidsHistory.get(keys).get(value).doubleValue() + (1.0 - progress.get(System.currentTimeMillis())));
                     else
                         bidsHistory.get(keys).put(value, 1.0);
+
                 }
                 opponentModelling.validateOthers(turnCount,bidsHistory);
                 opponentModelling.addOpponentModel(lastReceivedBid.getIssueValues().values());
@@ -498,21 +500,18 @@ public class KayseriliAgent extends DefaultParty {
         ObjectMapper objectMapper = new ObjectMapper();
 
         // Iterate through the negotiation data file paths
-        for (File dataPath : this.dataPaths)
+        for (File dataPath : this.dataPaths) {
+            NegotiationData negotiationData;
             try {
                 // Load the negotiation data object of a previous negotiation
-                System.out.println("DataPath: " + this.dataPaths.toString());
-                NegotiationData negotiationData = objectMapper.readValue(dataPath, NegotiationData.class);
-                System.out.println("Negotiation Data Name: " + negotiationData.getOpponentName());
-                System.out.println("Negotiation Data Agreement Util: " + negotiationData.getAgreementUtil());
-                System.out.println("Negotiation Data GetMax: " + negotiationData.getMaxReceivedUtil());
-
-                // Process the negotiation data in our persistent state
-                this.persistentState.update(negotiationData);
-                System.out.println("Opponent Encounters: " + this.persistentState.getOpponentEncounters(this.opponentName));
+                negotiationData = objectMapper.readValue(dataPath, NegotiationData.class);
             } catch (IOException e) {
                 throw new RuntimeException("Negotiation data provided to learning step does not exist", e);
             }
+
+            // Process the negotiation data in our persistent state
+            this.persistentState.update(negotiationData);
+        }
 
         // Write the persistent state object to file
         try {

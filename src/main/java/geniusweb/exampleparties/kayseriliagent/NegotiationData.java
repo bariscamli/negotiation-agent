@@ -57,7 +57,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
  * persistent state of the agent. NOTE that Jackson can serialize many default
  * java classes, but not custom classes out-of-the-box.
  */
-@JsonAutoDetect(fieldVisibility = Visibility.ANY)
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public class NegotiationData {
 
     private Double maxReceivedUtil = 0.0;

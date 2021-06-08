@@ -149,7 +149,7 @@ public class PersistentState {
  * Jackson. NOTE that Jackson can serialize many default java classes, but not
  * custom classes out-of-the-box.
  */
-@JsonAutoDetect(fieldVisibility = Visibility.ANY)
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public class PersistentState {
 
     private Double averageUtility = 0.0;
@@ -205,7 +205,6 @@ public class PersistentState {
     public Boolean knownOpponent(String opponent) {
         return opponentEncounters.containsKey(opponent);
     }
-
     public boolean isCompetitive() {
         return true;
     }
