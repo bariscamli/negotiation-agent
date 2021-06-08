@@ -1,14 +1,5 @@
-D:\GeniusWeb\negotiation-agent\src\main\java\geniusweb\exampleparties\kayseriliagent\constants\ConcessionRate.java
-D:\GeniusWeb\negotiation-agent\src\main\java\geniusweb\exampleparties\kayseriliagent\PersistentState.java
-D:\GeniusWeb\negotiation-agent\src\main\java\geniusweb\exampleparties\kayseriliagent\Acceptance.java
-D:\GeniusWeb\negotiation-agent\src\main\java\geniusweb\exampleparties\kayseriliagent\strategies\TimeConcessionStrategies.java
-D:\GeniusWeb\negotiation-agent\src\main\java\geniusweb\exampleparties\kayseriliagent\strategies\AdaptiveBoulwareStrategy.java
-D:\GeniusWeb\negotiation-agent\src\main\java\geniusweb\exampleparties\kayseriliagent\bidding\BaseOfferingStrategy.java
-D:\GeniusWeb\negotiation-agent\src\main\java\geniusweb\exampleparties\kayseriliagent\strategies\BaseTimeConcessionStrategy.java
-D:\GeniusWeb\negotiation-agent\src\main\java\geniusweb\exampleparties\kayseriliagent\KayseriliAgent.java
 D:\GeniusWeb\negotiation-agent\src\main\java\geniusweb\exampleparties\kayseriliagent\NegotiationData.java
-D:\GeniusWeb\negotiation-agent\src\main\java\geniusweb\exampleparties\kayseriliagent\strategies\IStrategies.java
-D:\GeniusWeb\negotiation-agent\src\main\java\geniusweb\exampleparties\kayseriliagent\bidding\HybridOfferingBiddingStrategy.java
+D:\GeniusWeb\negotiation-agent\src\main\java\geniusweb\exampleparties\kayseriliagent\PersistentState.java
 D:\GeniusWeb\negotiation-agent\src\main\java\geniusweb\exampleparties\kayseriliagent\Bidding.java
-D:\GeniusWeb\negotiation-agent\src\main\java\geniusweb\exampleparties\kayseriliagent\bidding\RandomOfferingBiddingStrategy.java
 D:\GeniusWeb\negotiation-agent\src\main\java\geniusweb\exampleparties\kayseriliagent\OpponentModelling.java
+D:\GeniusWeb\negotiation-agent\src\main\java\geniusweb\exampleparties\kayseriliagent\KayseriliAgent.java

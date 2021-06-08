@@ -118,6 +118,7 @@ public class KayseriliAgent extends DefaultParty {
                 // normally.
                 if (this.parameters.containsKey("negotiationdata")) {
                     List<String> dataPaths_raw = (List<String>) this.parameters.get("negotiationdata");
+                    System.out.println("Raw data path: " + dataPaths_raw);
                     this.dataPaths = new ArrayList<>();
                     for (String path : dataPaths_raw)
                         this.dataPaths.add(new FileLocation(UUID.fromString(path)).getFile());
@@ -235,7 +236,7 @@ public class KayseriliAgent extends DefaultParty {
             // If the action was an offer: Obtain the bid and add it's value to our
             // negotiation data.
             this.lastReceivedBid = ((Offer) action).getBid();
-            this.negotiationData.addOpponentBidUtil(this.utilitySpace.getUtility(this.lastReceivedBid).doubleValue());
+            this.negotiationData.addBidUtil(this.utilitySpace.getUtility(this.lastReceivedBid).doubleValue());
         }
     }
 
@@ -251,8 +252,10 @@ public class KayseriliAgent extends DefaultParty {
         if (!agreements.getMap().isEmpty()) {
             // Get the bid that is agreed upon and add it's value to our negotiation data
             Bid agreement = agreements.getMap().values().iterator().next();
-            this.negotiationData.addOpponentBidUtil(this.utilitySpace.getUtility(agreement).doubleValue());
-            this.negotiationData.settotalNegotation(1);
+            this.negotiationData.addAgreementUtil(this.utilitySpace.getUtility(agreement).doubleValue());
+           // this.negotiationData.addOpponentBidUtil(this.utilitySpace.getUtility(agreement).doubleValue());
+           // this.negotiationData.settotalNegotation(1);
+
         }
        /* for (String k: bidsHistory.keySet()) {
             if(k != null)
@@ -262,9 +265,7 @@ public class KayseriliAgent extends DefaultParty {
 
     }
 
-    /**
-     * send our next offer
-     */
+
     private void myTurn() throws IOException {
         System.out.println("Time Step: " + progress.get(System.currentTimeMillis()));
         Action action;
@@ -280,8 +281,8 @@ public class KayseriliAgent extends DefaultParty {
                 }
                 for (String keys : lastReceivedBid.getIssueValues().keySet()) {
                     String value = lastReceivedBid.getIssueValues().get(keys).toString(); // cola, fanta
-                    if (bidsHistory.get(keys).containsKey(value))
-                        bidsHistory.get(keys).put(value, bidsHistory.get(keys).get(value) + 1.0);
+                    if (bidsHistory.get(keys).containsKey(value) && bidsHistory != null)
+                        bidsHistory.get(keys).put(value, bidsHistory.get(keys).get(value) + (1.0  - progress.get(System.currentTimeMillis())));
                     else
                         bidsHistory.get(keys).put(value, 1.0);
                 }
@@ -298,21 +299,80 @@ public class KayseriliAgent extends DefaultParty {
             // Obtain ist of all bids
             AllBidsList bidspace = new AllBidsList(this.utilitySpace.getDomain());
             Bid bid = null;
-
+            Double timeStep = progress.get(System.currentTimeMillis());
+            ArrayList<Double> opponentSpace = new ArrayList<>();
+            if (timeStep > 0.1) {
+                opponentSpace = opponentModelling.calculateFrequency();
+            }
+                bid = bidspace.get(0);
+                if (timeStep < 0.5){
+                    if (this.utilitySpace.getUtility(bid).doubleValue() > 0.9){
+                        action = new Offer(me, bid);
+                        getConnection().send(action);
+                    }
+                    else{
+                        bid = randomBidGenerator(bidspace,0.81);
+                        action = new Offer(me, bid);
+                        getConnection().send(action);
+                    }
+                } else if (timeStep <= 0.7){
+                    double val = 0.0;
+                    if (opponentSpace.get(opponentSpace.size()-1) > 0.75)
+                        val = opponentSpace.get(opponentSpace.size() -1);
+                    else
+                        val = 0.75;
+                    if (this.utilitySpace.getUtility(bid).doubleValue() > val){
+                        action = new Offer(me, bid);
+                        getConnection().send(action);
+                    } else {
+                        bid = randomBidGenerator(bidspace,val);
+                        action = new Offer(me, bid);
+                        getConnection().send(action);
+                    }
+                } else if (timeStep <= 0.8){
+                    double val = 0.0;
+                    if (opponentSpace.get(opponentSpace.size()-1) > 0.70)
+                        val = opponentSpace.get(opponentSpace.size() -1);
+                    else
+                        val = 0.70;
+                    if (this.utilitySpace.getUtility(bid).doubleValue() > val){
+                        action = new Offer(me, bid);
+                        getConnection().send(action);
+                    } else {
+                        bid = randomBidGenerator(bidspace,val);
+                        action = new Offer(me, bid);
+                        getConnection().send(action);
+                    }
+                } else {
+                    bid = randomBidGenerator(bidspace,0.7);
+                    action = new Offer(me, bid);
+                    getConnection().send(action);
+                }
+            }
+            //System.out.println("BidSpace Length: " + bidspace.size().intValue());
             // Iterate randomly through list of bids until we find a good bid
-            for (int attempt = 0; attempt < 10 && !isGood(bid); attempt++) {
+           /* for (int attempt = 0; attempt < 500 && !isGood(bid); attempt++) {
                 long i = random.nextInt(bidspace.size().intValue());
                 bid = bidspace.get(BigInteger.valueOf(i));
-            }
-
+            }*/
 
             // Create offer action
-            action = new Offer(me, bid);
-        }
+          //  action = new Offer(me, bid);
 
         // Send action
-        getConnection().send(action);
+      //  getConnection().send(action);
     }
+
+    private Bid randomBidGenerator(AllBidsList bidsList, double threshold){
+        int random = new Random().nextInt(bidsList.size().intValue());
+        Bid bid = bidsList.get(random);
+        while (this.utilitySpace.getUtility(bid).doubleValue() < threshold){
+            random = new Random().nextInt(bidsList.size().intValue());
+            bid = bidsList.get(random);
+        }
+        return bid;
+    }
+
 
     /**
      * The method checks if a bid is good.
@@ -324,7 +384,9 @@ public class KayseriliAgent extends DefaultParty {
         Double timeStep = progress.get(System.currentTimeMillis());
         Double avgMaxUtility = this.persistentState.getAvgMaxUtility(this.opponentName);
         double rangeMin = 0.81;
-        double rangeMax = 0.99;
+        double rangeMax = 0.90;
+        Boolean nearDeadline = progress.get(System.currentTimeMillis()) > 0.95;
+
         ArrayList<Double> opponentSpace = new ArrayList<>();
         if (timeStep > 0.2)
             opponentSpace = opponentModelling.calculateFrequency();
@@ -333,13 +395,16 @@ public class KayseriliAgent extends DefaultParty {
         if (bid == null) {
             return false;
         }
+        Boolean acceptable = this.utilitySpace.getUtility(bid).doubleValue() > 0.7;
+        Boolean good = this.utilitySpace.getUtility(bid).doubleValue() > 0.9;
         // Check if we already know the opponent
         if (this.persistentState.knownOpponent(this.opponentName)) {
             // Obtain the average of the max utility that the opponent has offered us in
             // previous negotiations.
-            System.out.println("We know the opponent!");
+           // System.out.println("We know the opponent!");
             double threshold = 0.10;
             if (this.persistentState.isCompetitive()) {
+                System.out.println("We are here! is competitive");
                 if (timeStep <= 0.5) {
                     double value = 0.0;
                     if (avgMaxUtility + threshold > 1.0) {
@@ -347,7 +412,7 @@ public class KayseriliAgent extends DefaultParty {
                     } else {
                         value = avgMaxUtility + threshold;
                     }
-                    System.out.println("Our Acceptance Value: " + value);
+                   // System.out.println("Our Acceptance Value: " + value);
                     return this.utilitySpace.getUtility(bid).doubleValue() > value;
                 } else if (timeStep <= 0.7) {
                     double value = 0.0;
@@ -356,7 +421,7 @@ public class KayseriliAgent extends DefaultParty {
                     } else {
                         value = avgMaxUtility + (threshold / 3);
                     }
-                    System.out.println("Our Acceptance Value: " + value);
+                   // System.out.println("Our Acceptance Value: " + value);
                     return this.utilitySpace.getUtility(bid).doubleValue() > value;
                 } else if (timeStep <= 0.8) {
                     double value = 0.0;
@@ -365,7 +430,7 @@ public class KayseriliAgent extends DefaultParty {
                     } else {
                         value = avgMaxUtility + (2 * threshold / 3);
                     }
-                    System.out.println("Our Acceptance Value: " + value);
+                   // System.out.println("Our Acceptance Value: " + value);
                     return this.utilitySpace.getUtility(bid).doubleValue() > value;
                 } else {
                     double value = 0.0;
@@ -374,7 +439,7 @@ public class KayseriliAgent extends DefaultParty {
                     } else {
                         value = avgMaxUtility + (threshold / 5);
                     }
-                    System.out.println("Our Acceptance Value: " + value);
+                   // System.out.println("Our Acceptance Value: " + value);
                     return this.utilitySpace.getUtility(bid).doubleValue() > value;
                 }
             } else if (this.persistentState.isSocial()) {
@@ -392,9 +457,9 @@ public class KayseriliAgent extends DefaultParty {
 
             if (timeStep < 0.5) {
                 Double randomStarter = rangeMin + (rangeMax - rangeMin) * random.nextDouble();
-                System.out.println("Offers Utility: " + this.utilitySpace.getUtility(bid).doubleValue());
-                System.out.println("Random Starter: " + randomStarter);
-                return this.utilitySpace.getUtility(bid).doubleValue() > randomStarter;
+              //  System.out.println("Offers Utility: " + this.utilitySpace.getUtility(bid).doubleValue());
+             //   System.out.println("Random Starter: " + randomStarter);
+                return this.utilitySpace.getUtility(bid).doubleValue() > randomStarter || good;
             } else if (timeStep <= 0.7) {
                 //System.out.println("Opponents Bid: " + bid.getIssueValues().values());
               /* System.out.println("Our OpponentSpace: " + opponentSpace);
@@ -405,20 +470,18 @@ public class KayseriliAgent extends DefaultParty {
                         System.out.println("Estimated Utility: " + estimatedUtility);
                     }*/
                 //index--;
-                System.out.println("Offers Utility: " + this.utilitySpace.getUtility(bid).doubleValue());
-                System.out.println("Utility Value: " + opponentSpace.get(index));
-                return this.utilitySpace.getUtility(bid).doubleValue() > opponentSpace.get(index);
-
+             //   System.out.println("Offers Utility: " + this.utilitySpace.getUtility(bid).doubleValue());
+             //   System.out.println("Utility Value: " + opponentSpace.get(index));
+                if (opponentSpace.get(index) > 0.75)
+                    return this.utilitySpace.getUtility(bid).doubleValue() > opponentSpace.get(index) || good;
             } else if (timeStep <= 0.8) {
                 //index--;
-                System.out.println("Offers Utility: " + this.utilitySpace.getUtility(bid).doubleValue());
-                System.out.println("Utility Value: " + opponentSpace.get(index));
-                return this.utilitySpace.getUtility(bid).doubleValue() > (opponentSpace.get(index) * timeStep);
+             //   System.out.println("Offers Utility: " + this.utilitySpace.getUtility(bid).doubleValue());
+             //   System.out.println("Utility Value: " + opponentSpace.get(index));
+                if (opponentSpace.get(index) > 0.70)
+                    return this.utilitySpace.getUtility(bid).doubleValue() > (opponentSpace.get(index) * timeStep) || good;
             }
         }
-        Boolean nearDeadline = progress.get(System.currentTimeMillis()) > 0.95;
-        Boolean acceptable = this.utilitySpace.getUtility(bid).doubleValue() > 0.7;
-        Boolean good = this.utilitySpace.getUtility(bid).doubleValue() > 0.9;
         return (nearDeadline && acceptable) || good;
     }
 
@@ -438,10 +501,15 @@ public class KayseriliAgent extends DefaultParty {
         for (File dataPath : this.dataPaths)
             try {
                 // Load the negotiation data object of a previous negotiation
+                System.out.println("DataPath: " + this.dataPaths.toString());
                 NegotiationData negotiationData = objectMapper.readValue(dataPath, NegotiationData.class);
+                System.out.println("Negotiation Data Name: " + negotiationData.getOpponentName());
+                System.out.println("Negotiation Data Agreement Util: " + negotiationData.getAgreementUtil());
+                System.out.println("Negotiation Data GetMax: " + negotiationData.getMaxReceivedUtil());
 
                 // Process the negotiation data in our persistent state
                 this.persistentState.update(negotiationData);
+                System.out.println("Opponent Encounters: " + this.persistentState.getOpponentEncounters(this.opponentName));
             } catch (IOException e) {
                 throw new RuntimeException("Negotiation data provided to learning step does not exist", e);
             }
