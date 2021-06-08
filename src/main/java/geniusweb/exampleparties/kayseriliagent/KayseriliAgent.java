@@ -235,7 +235,7 @@ public class KayseriliAgent extends DefaultParty {
             // If the action was an offer: Obtain the bid and add it's value to our
             // negotiation data.
             this.lastReceivedBid = ((Offer) action).getBid();
-            this.negotiationData.addBidUtil(this.utilitySpace.getUtility(this.lastReceivedBid).doubleValue());
+            this.negotiationData.addOpponentBidUtil(this.utilitySpace.getUtility(this.lastReceivedBid).doubleValue());
         }
     }
 
@@ -251,7 +251,8 @@ public class KayseriliAgent extends DefaultParty {
         if (!agreements.getMap().isEmpty()) {
             // Get the bid that is agreed upon and add it's value to our negotiation data
             Bid agreement = agreements.getMap().values().iterator().next();
-            this.negotiationData.addAgreementUtil(this.utilitySpace.getUtility(agreement).doubleValue());
+            this.negotiationData.addOpponentBidUtil(this.utilitySpace.getUtility(agreement).doubleValue());
+            this.negotiationData.settotalNegotation(1);
         }
        /* for (String k: bidsHistory.keySet()) {
             if(k != null)
