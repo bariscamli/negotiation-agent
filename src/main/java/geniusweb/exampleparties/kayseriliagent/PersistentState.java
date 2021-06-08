@@ -55,19 +55,22 @@ public class PersistentState {
         int size_else = 0;
 
         for (int i = 0; i < negotiationData.gettotalNegotation() ; i++) {
-            for(int j = 0; j < negotiationData.getbidsHistory().get(i).size(); j++) {
-                if (j <= negotiationData.getbidsHistory().get(i).size() * 0.8)
+            for (int j = 0; j < negotiationData.getbidsHistory().get(i).size(); j++) {
+                if (j <= negotiationData.getbidsHistory().get(i).size() * 0.8) {
                     mean_five += negotiationData.getbidsHistory().get(i).get(j);
-                    size_eight +=1;
-                if (j <= negotiationData.getbidsHistory().get(i).size() * 0.7)
+                    size_eight += 1;
+                }
+                if (j <= negotiationData.getbidsHistory().get(i).size() * 0.7) {
                     mean_seven += negotiationData.getbidsHistory().get(i).get(j);
-                    size_seven +=1;
-                if (j <= negotiationData.getbidsHistory().get(i).size() * 0.5)
+                    size_seven += 1;
+                }
+                if (j <= negotiationData.getbidsHistory().get(i).size() * 0.5) {
                     mean_eight += negotiationData.getbidsHistory().get(i).get(j);
-                    size_five +=1;
-                else
+                    size_five += 1;
+                } else {
                     mean_else += negotiationData.getbidsHistory().get(i).get(j);
-                    size_else +=1;
+                    size_else += 1;
+                }
             }
         }
 
@@ -97,7 +100,7 @@ public class PersistentState {
 
 
         // Keep track of the number of negotiations that we performed
-        negotiationData.gettotalNegotation()
+        negotiationData.gettotalNegotation();
 
         // Get the name of the opponent that we negotiated against
         String opponent = negotiationData.getOpponentName();
@@ -125,5 +128,13 @@ public class PersistentState {
 
     public Boolean knownOpponent(String opponent) {
         return opponentEncounters.containsKey(opponent);
+    }
+
+    public boolean isCompetitive() {
+        return false;
+    }
+
+    public boolean isSocial() {
+        return false;
     }
 }
