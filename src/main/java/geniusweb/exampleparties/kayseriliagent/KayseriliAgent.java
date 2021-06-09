@@ -79,8 +79,7 @@ public class KayseriliAgent extends DefaultParty {
                 Settings settings = (Settings) info;
 //                this.profile = (Profile) settings.getProfile();
 
-                // initialize history list
-                this.bidsHistory = new HashMap<String,HashMap<String,Double>>();
+
 //                System.out.println("DOMAIN:   " + this.profile.getDomain());
 //                System.out.println("DOMAIN2:   " + this.profile.getReservationBid());
 
@@ -133,6 +132,8 @@ public class KayseriliAgent extends DefaultParty {
                     // Create a new NegotiationData object to store information on this negotiation.
                     // See 'NegotiationData.java'.
                     this.negotiationData = new NegotiationData();
+                    // initialize history list
+                    this.bidsHistory = new HashMap<>();
 
                     // Obtain our utility space, i.e. the problem we are negotiating and our
                     // preferences over it.
@@ -266,12 +267,7 @@ public class KayseriliAgent extends DefaultParty {
 
 
     private void myTurn() throws IOException {
-        System.out.println("asda");
-       // Double avgMaxUtility = 0.0;
-        //if(this.persistentState.getAvgMaxUtility(this.opponentName) != null)
-            //avgMaxUtility = this.persistentState.getAvgMaxUtility(this.opponentName);
         System.out.println("Time Step: " + progress.get(System.currentTimeMillis()));
-        //System.out.println(avgMaxUtility);
         Action action;
         turnCount++;
         if (lastReceivedBid != null) {
@@ -286,9 +282,9 @@ public class KayseriliAgent extends DefaultParty {
                 for (String keys : lastReceivedBid.getIssueValues().keySet()) {
                     String value = lastReceivedBid.getIssueValues().get(keys).toString();
 //                    System.out.println("Bids History: " + value);
-                    System.out.println("Bids Histroy: " + bidsHistory);
+                    //System.out.println("Bids Histroy: " + bidsHistory);
                     if (bidsHistory.get(keys).containsKey(value))
-                        bidsHistory.get(keys).put(value, bidsHistory.get(keys).get(value).doubleValue() + (1.0 - progress.get(System.currentTimeMillis())));
+                        bidsHistory.get(keys).put(value, bidsHistory.get(keys).get(value) + 1.0 );
                     else
                         bidsHistory.get(keys).put(value, 1.0);
 
@@ -409,7 +405,7 @@ public class KayseriliAgent extends DefaultParty {
             // Obtain the average of the max utility that the opponent has offered us in
             // previous negotiations.
            // System.out.println("We know the opponent!");
-            double threshold = 0.15;
+            double threshold = 0.10;
             if (this.persistentState.isCompetitive()) {
                 System.out.println("We are here! is competitive");
                 if (timeStep <= 0.5) {
@@ -450,45 +446,7 @@ public class KayseriliAgent extends DefaultParty {
                     return this.utilitySpace.getUtility(bid).doubleValue() > value;
                 }
             } else if (this.persistentState.isSocial()) {
-                threshold = 0.05;
-                System.out.println("We are here! is competitive");
-                if (timeStep <= 0.5) {
-                    double value = 0.0;
-                    if (avgMaxUtility + threshold > 1.0) {
-                        value = avgMaxUtility;
-                    } else {
-                        value = avgMaxUtility + threshold;
-                    }
-                    // System.out.println("Our Acceptance Value: " + value);
-                    return this.utilitySpace.getUtility(bid).doubleValue() > value;
-                } else if (timeStep <= 0.7) {
-                    double value = 0.0;
-                    if (avgMaxUtility + (threshold / 3) > 1.0) {
-                        value = avgMaxUtility;
-                    } else {
-                        value = avgMaxUtility + (threshold / 3);
-                    }
-                    // System.out.println("Our Acceptance Value: " + value);
-                    return this.utilitySpace.getUtility(bid).doubleValue() > value;
-                } else if (timeStep <= 0.8) {
-                    double value = 0.0;
-                    if (avgMaxUtility + (2 * threshold / 3) > 1.0) {
-                        value = avgMaxUtility;
-                    } else {
-                        value = avgMaxUtility + (2 * threshold / 3);
-                    }
-                    // System.out.println("Our Acceptance Value: " + value);
-                    return this.utilitySpace.getUtility(bid).doubleValue() > value;
-                } else {
-                    double value = 0.0;
-                    if (avgMaxUtility + (threshold / 5) > 1.0) {
-                        value = avgMaxUtility;
-                    } else {
-                        value = avgMaxUtility + (threshold / 5);
-                    }
-                    // System.out.println("Our Acceptance Value: " + value);
-                    return this.utilitySpace.getUtility(bid).doubleValue() > value;
-                }
+
             } else {
                 // Request 5% more than the average max utility offered by the opponent.
                 return this.utilitySpace.getUtility(bid).doubleValue() > (avgMaxUtility * 1.05);

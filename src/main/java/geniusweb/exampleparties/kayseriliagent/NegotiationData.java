@@ -1,4 +1,4 @@
-package geniusweb.exampleparties.kayseriliagent; // TODO: change name
+package geniusweb.exampleparties.kayseriliagent;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
