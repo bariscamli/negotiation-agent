@@ -237,6 +237,7 @@ public class KayseriliAgent extends DefaultParty {
             // negotiation data.
             this.lastReceivedBid = ((Offer) action).getBid();
             this.negotiationData.addBidUtil(this.utilitySpace.getUtility(this.lastReceivedBid).doubleValue());
+            this.negotiationData.addOpponentBidUtil(this.utilitySpace.getUtility(this.lastReceivedBid).doubleValue());
         }
     }
 
@@ -253,8 +254,8 @@ public class KayseriliAgent extends DefaultParty {
             // Get the bid that is agreed upon and add it's value to our negotiation data
             Bid agreement = agreements.getMap().values().iterator().next();
             this.negotiationData.addAgreementUtil(this.utilitySpace.getUtility(agreement).doubleValue());
-           // this.negotiationData.addOpponentBidUtil(this.utilitySpace.getUtility(agreement).doubleValue());
-           // this.negotiationData.settotalNegotation(1);
+            this.negotiationData.addOpponentBidUtil(this.utilitySpace.getUtility(agreement).doubleValue());
+            this.negotiationData.settotalNegotation(1);
 
         }
        /* for (String k: bidsHistory.keySet()) {
@@ -307,51 +308,51 @@ public class KayseriliAgent extends DefaultParty {
             if (timeStep > 0.1) {
                 opponentSpace = opponentModelling.calculateFrequency();
             }
-                bid = bidspace.get(0);
-                if (timeStep < 0.5){
-                    if (this.utilitySpace.getUtility(bid).doubleValue() > 0.9){
-                        action = new Offer(me, bid);
-                        getConnection().send(action);
-                    }
-                    else{
-                        bid = randomBidGenerator(bidspace,0.81);
-                        action = new Offer(me, bid);
-                        getConnection().send(action);
-                    }
-                } else if (timeStep <= 0.7){
-                    double val = 0.0;
-                    if (opponentSpace.get(opponentSpace.size()-1) > 0.75)
-                        val = opponentSpace.get(opponentSpace.size() -1);
-                    else
-                        val = 0.75;
-                    if (this.utilitySpace.getUtility(bid).doubleValue() > val){
-                        action = new Offer(me, bid);
-                        getConnection().send(action);
-                    } else {
-                        bid = randomBidGenerator(bidspace,val);
-                        action = new Offer(me, bid);
-                        getConnection().send(action);
-                    }
-                } else if (timeStep <= 0.8){
-                    double val = 0.0;
-                    if (opponentSpace.get(opponentSpace.size()-1) > 0.70)
-                        val = opponentSpace.get(opponentSpace.size() -1);
-                    else
-                        val = 0.70;
-                    if (this.utilitySpace.getUtility(bid).doubleValue() > val){
-                        action = new Offer(me, bid);
-                        getConnection().send(action);
-                    } else {
-                        bid = randomBidGenerator(bidspace,val);
-                        action = new Offer(me, bid);
-                        getConnection().send(action);
-                    }
-                } else {
-                    bid = randomBidGenerator(bidspace,0.7);
+            bid = bidspace.get(0);
+            if (timeStep < 0.5){
+                if (this.utilitySpace.getUtility(bid).doubleValue() > 0.9){
                     action = new Offer(me, bid);
                     getConnection().send(action);
                 }
+                else{
+                    bid = randomBidGenerator(bidspace,0.81);
+                    action = new Offer(me, bid);
+                    getConnection().send(action);
+                }
+            } else if (timeStep <= 0.7){
+                double val = 0.0;
+                if (opponentSpace.get(opponentSpace.size()-1) > 0.75)
+                    val = opponentSpace.get(opponentSpace.size() -1);
+                else
+                    val = 0.75;
+                if (this.utilitySpace.getUtility(bid).doubleValue() > val){
+                    action = new Offer(me, bid);
+                    getConnection().send(action);
+                } else {
+                    bid = randomBidGenerator(bidspace,val);
+                    action = new Offer(me, bid);
+                    getConnection().send(action);
+                }
+            } else if (timeStep <= 0.8){
+                double val = 0.0;
+                if (opponentSpace.get(opponentSpace.size()-1) > 0.70)
+                    val = opponentSpace.get(opponentSpace.size() -1);
+                else
+                    val = 0.70;
+                if (this.utilitySpace.getUtility(bid).doubleValue() > val){
+                    action = new Offer(me, bid);
+                    getConnection().send(action);
+                } else {
+                    bid = randomBidGenerator(bidspace,val);
+                    action = new Offer(me, bid);
+                    getConnection().send(action);
+                }
+            } else {
+                bid = randomBidGenerator(bidspace,0.7);
+                action = new Offer(me, bid);
+                getConnection().send(action);
             }
+        }
             //System.out.println("BidSpace Length: " + bidspace.size().intValue());
             // Iterate randomly through list of bids until we find a good bid
            /* for (int attempt = 0; attempt < 500 && !isGood(bid); attempt++) {
@@ -404,54 +405,96 @@ public class KayseriliAgent extends DefaultParty {
         if (this.persistentState.knownOpponent(this.opponentName)) {
             // Obtain the average of the max utility that the opponent has offered us in
             // previous negotiations.
-           // System.out.println("We know the opponent!");
-            double threshold = 0.10;
-            if (this.persistentState.isCompetitive()) {
-                System.out.println("We are here! is competitive");
-                if (timeStep <= 0.5) {
-                    double value = 0.0;
-                    if (avgMaxUtility + threshold > 1.0) {
-                        value = avgMaxUtility;
-                    } else {
-                        value = avgMaxUtility + threshold;
-                    }
-                   // System.out.println("Our Acceptance Value: " + value);
-                    return this.utilitySpace.getUtility(bid).doubleValue() > value;
-                } else if (timeStep <= 0.7) {
+            // System.out.println("We know the opponent!");
+            double threshold = 0.15;
+
+            if (timeStep <= 0.5) {
+                double value = 0.0;
+                if (avgMaxUtility + threshold > 1.0) {
+                    value = avgMaxUtility;
+                } else {
+                    value = avgMaxUtility + threshold;
+                }
+                // System.out.println("Our Acceptance Value: " + value);
+                return this.utilitySpace.getUtility(bid).doubleValue() > value;
+            }
+            else if (timeStep <= 0.7) {
+                if(this.persistentState.isDuration_seven()){
+                    threshold = 0.05;
                     double value = 0.0;
                     if (avgMaxUtility + (threshold / 3) > 1.0) {
                         value = avgMaxUtility;
                     } else {
                         value = avgMaxUtility + (threshold / 3);
                     }
-                   // System.out.println("Our Acceptance Value: " + value);
+                    // System.out.println("Our Acceptance Value: " + value);
                     return this.utilitySpace.getUtility(bid).doubleValue() > value;
-                } else if (timeStep <= 0.8) {
+
+                }
+                else{
+                    double value = 0.0;
+                    if (avgMaxUtility + (threshold / 3) > 1.0) {
+                        value = avgMaxUtility;
+                    } else {
+                        value = avgMaxUtility + (threshold / 3);
+                    }
+                    // System.out.println("Our Acceptance Value: " + value);
+                    return this.utilitySpace.getUtility(bid).doubleValue() > value;
+
+                }
+
+            }
+            else if (timeStep <= 0.8) {
+                if(this.persistentState.isDuration_eight()){
+                    threshold = 0.05;
                     double value = 0.0;
                     if (avgMaxUtility + (2 * threshold / 3) > 1.0) {
                         value = avgMaxUtility;
                     } else {
                         value = avgMaxUtility + (2 * threshold / 3);
                     }
-                   // System.out.println("Our Acceptance Value: " + value);
+                    // System.out.println("Our Acceptance Value: " + value);
                     return this.utilitySpace.getUtility(bid).doubleValue() > value;
-                } else {
+
+                }
+                else {
+                    double value = 0.0;
+                    if (avgMaxUtility + (2 * threshold / 3) > 1.0) {
+                        value = avgMaxUtility;
+                    } else {
+                        value = avgMaxUtility + (2 * threshold / 3);
+                    }
+                    // System.out.println("Our Acceptance Value: " + value);
+                    return this.utilitySpace.getUtility(bid).doubleValue() > value;
+                }
+
+            }
+            else{
+                if(this.persistentState.isDuration_else()){
+                    threshold = 0.05;
                     double value = 0.0;
                     if (avgMaxUtility + (threshold / 5) > 1.0) {
                         value = avgMaxUtility;
                     } else {
                         value = avgMaxUtility + (threshold / 5);
                     }
-                   // System.out.println("Our Acceptance Value: " + value);
+                    // System.out.println("Our Acceptance Value: " + value);
+                    return this.utilitySpace.getUtility(bid).doubleValue() > value;
+
+                }
+                else{
+                    double value = 0.0;
+                    if (avgMaxUtility + (threshold / 5) > 1.0) {
+                        value = avgMaxUtility;
+                    } else {
+                        value = avgMaxUtility + (threshold / 5);
+                    }
+                    // System.out.println("Our Acceptance Value: " + value);
                     return this.utilitySpace.getUtility(bid).doubleValue() > value;
                 }
-            } else if (this.persistentState.isSocial()) {
 
-            } else {
-                // Request 5% more than the average max utility offered by the opponent.
-                return this.utilitySpace.getUtility(bid).doubleValue() > (avgMaxUtility * 1.05);
+
             }
-
         } else {
             // System.out.println("We don't know the opponent!");
             // Check a simple business rule
