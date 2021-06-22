@@ -1,4 +1,4 @@
-package geniusweb.exampleparties.kayseriliagent;
+package geniusweb.exampleparties.kayseriliagent; // TODO: change name
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -13,80 +13,30 @@ import java.util.HashMap;
  * persistent state of the agent. NOTE that Jackson can serialize many default
  * java classes, but not custom classes out-of-the-box.
  */
-
-@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
+@JsonAutoDetect(fieldVisibility = Visibility.ANY)
 public class NegotiationData {
-/*
-    private Double maxReceivedUtil = 0.0;
-    private Double agreementUtil = 0.0;
+
+    private ArrayList<ArrayList<Double>> bidsHistory = new ArrayList<ArrayList<Double>>();
+    private int totalNegotation = 0;
+
     private String opponentName;
 
-    public void addAgreementUtil(Double agreementUtil) {
-        this.agreementUtil = agreementUtil;
-        if (agreementUtil > maxReceivedUtil)
-            this.maxReceivedUtil = agreementUtil;
-    }
-
-    public void addBidUtil(Double bidUtil) {
-        if (bidUtil > maxReceivedUtil)
-            this.maxReceivedUtil = bidUtil;
+    public void addOpponentBidUtil(Double bidUtil) {
+        this.bidsHistory.get(this.totalNegotation).add(bidUtil);
     }
 
     public void setOpponentName(String opponentName) {
         this.opponentName = opponentName;
     }
 
-    public String getOpponentName() {
-        return this.opponentName;
-    }
-
-    public Double getMaxReceivedUtil() {
-        return this.maxReceivedUtil;
-    }
-
-    public Double getAgreementUtil() {
-        return this.agreementUtil;
-    }*/
-    private Double maxReceivedUtil = 0.0;
-    private ArrayList<ArrayList<Double>> bidsHistory = new ArrayList<ArrayList<Double>>();
-    private int totalNegotation = 0;
-    private Double agreementUtil = 0.0;
-    private String opponentName;
-
-    public void addAgreementUtil(Double agreementUtil) {
-        this.agreementUtil = agreementUtil;
-        if (agreementUtil > maxReceivedUtil)
-            this.maxReceivedUtil = agreementUtil;
-    }
-
-    public void addOpponentBidUtil(Double bidUtil) {
-        if (this.bidsHistory.size() != this.totalNegotation + 1)
-            this.bidsHistory.add(new ArrayList<Double>());
-        this.bidsHistory.get(this.totalNegotation).add(bidUtil);
-    }
-    public void addBidUtil(Double bidUtil) {
-        if (bidUtil > maxReceivedUtil)
-            this.maxReceivedUtil = bidUtil;
-    }
     public void settotalNegotation(int num) {
         this.totalNegotation += num;
     }
 
-    public void setOpponentName(String opponentName) {
-        this.opponentName = opponentName;
-    }
-
     public String getOpponentName() {
         return this.opponentName;
     }
 
-    public Double getMaxReceivedUtil() {
-        return this.maxReceivedUtil;
-    }
-
-    public Double getAgreementUtil() {
-        return this.agreementUtil;
-    }
     public int gettotalNegotation() {
         return this.totalNegotation;
     }
